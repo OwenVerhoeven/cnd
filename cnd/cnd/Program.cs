@@ -8,18 +8,31 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Belangrijk: herlaad configuratie zodat JWT-config uit test wél werkt
-builder.Configuration.AddEnvironmentVariables(); // optioneel
+// Belangrijk: configuratie herladen zodat testconfig ook werkt
+builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true);
 
-// Database
-// Lees connection string uit environment variable, of uit appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
-                       ?? throw new InvalidOperationException("No connection string configured.");
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: true)
+    .AddEnvironmentVariables();
 
-builder.Services.AddDbContext<JournalDbContext>(options =>
-    options.UseNpgsql(connectionString));
+// Flag uitlezen
+var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDb", false);
+
+if (useInMemory)
+{
+    builder.Services.AddDbContext<JournalDbContext>(options =>
+        options.UseInMemoryDatabase("TestDb"));
+}
+else
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                           ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                           ?? throw new InvalidOperationException("No connection string configured.");
+
+    builder.Services.AddDbContext<JournalDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
 
 
 // Services
@@ -57,11 +70,21 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
-// Automatisch migraties toepassen bij opstarten
-using (var scope = app.Services.CreateScope())
+// Migraties alleen toepassen als niet InMemory (dus niet bij tests)
+if (!useInMemory)
 {
-    var db = scope.ServiceProvider.GetRequiredService<JournalDbContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<JournalDbContext>();
+        if (app.Environment.IsEnvironment("Testing"))
+        {
+            db.Database.EnsureCreated();
+        }
+        else
+        {
+                       db.Database.Migrate();
+        }
+    }
 }
 
 // Middleware
@@ -81,4 +104,4 @@ app.MapControllers();
 
 app.Run();
 
-public partial class Program { } //Nodig voor WebApplicationFactory in tests
+public partial class Program { } // Nodig voor WebApplicationFactory in tests
