@@ -10,12 +10,11 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Kopieer alleen de projectfile en restore dependencies
-COPY ["cnd/cnd.csproj", "cnd/"]
-RUN dotnet restore "cnd/cnd.csproj"
+COPY ["cnd.csproj", "./"]
+RUN dotnet restore "cnd.csproj"
 
 # Kopieer de rest van de source code en build
 COPY . .
-WORKDIR "/src/cnd"
 RUN dotnet build "cnd.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publiceer de app in Release modus
