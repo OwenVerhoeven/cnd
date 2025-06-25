@@ -79,7 +79,7 @@ namespace JournalApi.Tests.Services
             var entry = await service.CreateEntryAsync(42, dto);
             var oldLastUpdated = entry.LastUpdated;
 
-            await Task.Delay(100); // om zeker te zijn dat er tijdsverschil is
+            await Task.Delay(100); // Tijdverschil voor LastUpdated
 
             var updateDto = SampleUpdate("Nieuw", "Nieuwe tekst", "Nas", "N.Y. State of Mind");
             var success = await service.UpdateEntryAsync(entry.JournalEntryId, entry.UserId, updateDto);

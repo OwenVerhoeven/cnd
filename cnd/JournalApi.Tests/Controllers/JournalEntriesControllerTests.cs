@@ -2,20 +2,23 @@
 using cnd.DTOs;
 using cnd.Models.Auth;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace JournalApi.Tests.Controllers
 {
-    public class JournalEntriesControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    // Verander hier van WebApplicationFactory naar CustomWebApplicationFactory
+    public class JournalEntriesControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
 
-        public JournalEntriesControllerTests(WebApplicationFactory<Program> factory)
+        public JournalEntriesControllerTests(CustomWebApplicationFactory<Program> factory)
         {
             _client = factory.WithWebHostBuilder(builder =>
             {

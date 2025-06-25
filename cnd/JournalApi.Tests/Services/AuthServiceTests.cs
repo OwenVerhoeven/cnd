@@ -58,7 +58,7 @@ namespace JournalApi.Tests.Services
         {
             var context = GetDbContext();
             context.Users.Add(new User { Username = "duplicate", PasswordHash = "hashed_password123" });
-            context.SaveChanges();
+            await context.SaveChangesAsync();
 
             var service = new AuthService(context, GetFakeConfig(), new MockPasswordHasher());
             var token = await service.RegisterAsync("duplicate", "password123");
@@ -77,7 +77,7 @@ namespace JournalApi.Tests.Services
             var token = await service.LoginAsync("loginuser", "password123");
 
             Assert.NotNull(token);
-            Assert.Contains("eyJ", token); // JWT header
+            Assert.StartsWith("eyJ", token); // JWT tokens starten meestal zo
         }
 
         [Fact]

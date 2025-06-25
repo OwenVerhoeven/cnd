@@ -13,8 +13,14 @@ builder.Configuration.AddEnvironmentVariables(); // optioneel
 builder.Configuration.AddJsonFile("appsettings.json", optional: true);
 
 // Database
+// Lees connection string uit environment variable, of uit appsettings.json
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                       ?? throw new InvalidOperationException("No connection string configured.");
+
 builder.Services.AddDbContext<JournalDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
 
 // Services
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();

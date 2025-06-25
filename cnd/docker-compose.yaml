@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   api:
     build:
@@ -5,11 +7,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
       - db
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Database=journal;Username=postgres;Password=postgres
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=journal;Username=postgres;Password=postgres
       - Jwt__Key=DezeSleutelMoetMinimaal32TekensLangZijn!
       - Jwt__Issuer=JournalApi
       - Jwt__Audience=JournalApiUser
