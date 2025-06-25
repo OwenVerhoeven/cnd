@@ -1,0 +1,32 @@
+services:
+  api:
+    build:
+      context: ./cnd
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Database=journal;Username=postgres;Password=postgres
+      - Jwt__Key=DezeSleutelMoetMinimaal32TekensLangZijn!
+      - Jwt__Issuer=JournalApi
+      - Jwt__Audience=JournalApiUser
+    networks:
+      - journalnet
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: journal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - journalnet
+
+networks:
+  journalnet:
