@@ -42,7 +42,7 @@ jobs:
 
       - name: Wait for Postgres to be ready
         run: |
-          until pg_isready -h db -p 5432; do
+          until pg_isready -h localhost -p 5432; do
             echo "Waiting for postgres..."
             sleep 2
           done
@@ -51,7 +51,7 @@ jobs:
 
       - name: Run tests
         env:
-          CONNECTION_STRING: Host=db;Port=5432;Database=journal;Username=postgres;Password=lokokip999
+          CONNECTION_STRING: Host=localhost;Port=5432;Database=journal;Username=postgres;Password=lokokip999
           UseInMemoryDb: "false"
         run: dotnet test ./cnd/JournalApi.Tests/JournalApi.Tests.csproj --configuration Release --no-restore --verbosity normal
 

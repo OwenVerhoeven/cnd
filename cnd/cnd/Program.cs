@@ -13,11 +13,13 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true);
 
 // Haal connection string op voor PostgreSQL
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
-                       ?? throw new InvalidOperationException("No connection string configured.");
+var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
 
-// DbContext registreren met PostgreSQL provider
+if (string.IsNullOrEmpty(connectionString))
+{
+    connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+}
+
 builder.Services.AddDbContext<JournalDbContext>(options =>
     options.UseNpgsql(connectionString));
 
