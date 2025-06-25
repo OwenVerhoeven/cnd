@@ -18,7 +18,7 @@ jobs:
         env:
           POSTGRES_DB: journal
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: lokokip999
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -51,7 +51,7 @@ jobs:
 
       - name: Run tests
         env:
-          CONNECTION_STRING: Host=localhost;Port=5432;Database=journal;Username=postgres;Password=postgres
+          CONNECTION_STRING: Host=localhost;Port=5432;Database=journal;Username=postgres;Password=lokokip999
           UseInMemoryDb: "false"
         run: dotnet test ./cnd/JournalApi.Tests/JournalApi.Tests.csproj --configuration Release --no-restore --verbosity normal
 

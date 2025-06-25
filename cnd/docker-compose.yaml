@@ -12,7 +12,7 @@ services:
       - db
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=journal;Username=postgres;Password=postgres
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=journal;Username=postgres;Password=lokokip999
       - Jwt__Key=DezeSleutelMoetMinimaal32TekensLangZijn!
       - Jwt__Issuer=JournalApi
       - Jwt__Audience=JournalApiUser
@@ -25,7 +25,7 @@ services:
     environment:
       POSTGRES_DB: journal
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: lokokip999
     ports:
       - "5432:5432"
     networks:
