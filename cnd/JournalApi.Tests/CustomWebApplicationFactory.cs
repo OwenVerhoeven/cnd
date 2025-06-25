@@ -13,9 +13,10 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     {
         builder.ConfigureAppConfiguration((context, config) =>
         {
+            // Override configuratie zodat UseInMemoryDb altijd false is (of niet aanwezig)
             var dict = new Dictionary<string, string?>
             {
-                ["UseInMemoryDb"] = "true",  // Set to true to use InMemory DB in tests by default
+                ["UseInMemoryDb"] = "false",  // Nooit InMemory gebruiken
                 ["Jwt:Key"] = "DezeSleutelMoetMinimaal32TekensLangZijn!",
                 ["Jwt:Issuer"] = "JournalApi",
                 ["Jwt:Audience"] = "JournalApiUser"
@@ -27,7 +28,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
 
         builder.ConfigureServices(services =>
         {
-            // Remove existing DbContext registrations
+            // Verwijder alle bestaande DbContext-registraties
             var descriptors = services.Where(
                 d => d.ServiceType == typeof(DbContextOptions<JournalDbContext>)).ToList();
 
@@ -36,33 +37,22 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
                 services.Remove(descriptor);
             }
 
-            // Read config to decide which DB provider to use
+            // Lees configuratie opnieuw om connection string te pakken
             var sp = services.BuildServiceProvider();
             var config = sp.GetRequiredService<IConfiguration>();
-            bool useInMemory = config.GetValue<bool>("UseInMemoryDb");
 
-            if (useInMemory)
+            // Haal connection string op voor Postgres
+            var connectionString = config.GetConnectionString("DefaultConnection")
+                                   ?? System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                                   ?? throw new InvalidOperationException("No connection string configured.");
+
+            // Registreer DbContext met Postgres provider
+            services.AddDbContext<JournalDbContext>(options =>
             {
-                // Use InMemory for testing
-                services.AddDbContext<JournalDbContext>(options =>
-                {
-                    options.UseInMemoryDatabase("TestDb");
-                });
-            }
-            else
-            {
-                // Use Postgres if flag is false
-                var connectionString = config.GetConnectionString("DefaultConnection")
-                                       ?? System.Environment.GetEnvironmentVariable("CONNECTION_STRING")
-                                       ?? throw new InvalidOperationException("No connection string configured.");
+                options.UseNpgsql(connectionString);
+            });
 
-                services.AddDbContext<JournalDbContext>(options =>
-                {
-                    options.UseNpgsql(connectionString);
-                });
-            }
-
-            // Ensure database is created before tests run
+            // Database creëren voordat tests starten
             var sp2 = services.BuildServiceProvider();
             using var scope = sp2.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<JournalDbContext>();

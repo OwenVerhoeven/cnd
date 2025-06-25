@@ -8,32 +8,18 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Belangrijk: configuratie herladen zodat testconfig ook werkt
+// Configuratie herladen zodat alles werkt (appsettings + env vars)
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json", optional: true);
 
-builder.Configuration
-    .AddJsonFile("appsettings.json", optional: true)
-    .AddEnvironmentVariables();
+// Haal connection string op voor PostgreSQL
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                       ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
+                       ?? throw new InvalidOperationException("No connection string configured.");
 
-// Flag uitlezen
-var useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDb", false);
-
-if (useInMemory)
-{
-    builder.Services.AddDbContext<JournalDbContext>(options =>
-        options.UseInMemoryDatabase("TestDb"));
-}
-else
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                           ?? Environment.GetEnvironmentVariable("CONNECTION_STRING")
-                           ?? throw new InvalidOperationException("No connection string configured.");
-
-    builder.Services.AddDbContext<JournalDbContext>(options =>
-        options.UseNpgsql(connectionString));
-}
-
+// DbContext registreren met PostgreSQL provider
+builder.Services.AddDbContext<JournalDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 // Services
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
@@ -70,20 +56,17 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
-// Migraties alleen toepassen als niet InMemory (dus niet bij tests)
-if (!useInMemory)
+// Migraties of aanmaak database
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
+    var db = scope.ServiceProvider.GetRequiredService<JournalDbContext>();
+    if (app.Environment.IsEnvironment("Testing"))
     {
-        var db = scope.ServiceProvider.GetRequiredService<JournalDbContext>();
-        if (app.Environment.IsEnvironment("Testing"))
-        {
-            db.Database.EnsureCreated();
-        }
-        else
-        {
-                       db.Database.Migrate();
-        }
+        db.Database.EnsureCreated(); // Voor testomgeving
+    }
+    else
+    {
+        db.Database.Migrate(); // Voor dev/prod
     }
 }
 

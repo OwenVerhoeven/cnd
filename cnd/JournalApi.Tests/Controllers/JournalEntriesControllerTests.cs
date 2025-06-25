@@ -13,7 +13,7 @@ using Xunit;
 
 namespace JournalApi.Tests.Controllers
 {
-    // Verander hier van WebApplicationFactory naar CustomWebApplicationFactory
+    // Gebruik CustomWebApplicationFactory die PostgreSQL gebruikt
     public class JournalEntriesControllerTests : IClassFixture<CustomWebApplicationFactory<Program>>
     {
         private readonly HttpClient _client;
@@ -24,6 +24,7 @@ namespace JournalApi.Tests.Controllers
             {
                 builder.ConfigureAppConfiguration((context, config) =>
                 {
+                    // Enkel JWT config toevoegen, geen UseInMemoryDb flag
                     config.AddInMemoryCollection(new Dictionary<string, string?>
                     {
                         { "Jwt:Key", "DezeSleutelMoetMinimaal32TekensLangZijn!" },
