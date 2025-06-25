@@ -51,7 +51,7 @@ jobs:
 
       - name: Run tests
         env:
-          CONNECTION_STRING: Host=localhost;Port=5432;Database=journal;Username=postgres;Password=lokokip999
+          CONNECTION_STRING: Host=db;Port=5432;Database=journal;Username=postgres;Password=lokokip999
           UseInMemoryDb: "false"
         run: dotnet test ./cnd/JournalApi.Tests/JournalApi.Tests.csproj --configuration Release --no-restore --verbosity normal
 
