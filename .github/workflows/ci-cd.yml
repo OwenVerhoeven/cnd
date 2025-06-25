@@ -26,7 +26,7 @@ jobs:
       run: dotnet build ./cnd/cnd.sln --configuration Release --no-restore
 
     - name: Run tests
-      run: dotnet test ./cnd/JournalApi.Tests/JournalApi.Tests.csproj --no-build --verbosity normal
+      run: dotnet test ./cnd/JournalApi.Tests/JournalApi.Tests.csproj --configuration Release --no-restore --verbosity normal
 
     - name: Log in to DockerHub
       uses: docker/login-action@v2
