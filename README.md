@@ -1,6 +1,6 @@
 
 *CND-architectuur en ontwerpaantekeningen*
-**Bibliotheken**
+*Bibliotheken*
 *AutoMapper:* vereenvoudigt het mappen tussen DTO's en entiteiten.
 
 *BCrypt.Net-Next:* biedt veilige wachtwoord-hashing.
@@ -17,7 +17,7 @@
 
 *System.Text.Json:* ingebouwde, hoog-performante JSON-serialisatie.
 
-**Ontwerpprincipes**
+*Ontwerpprincipes*
 *Dependency Injection (Afhankelijkheidsinjectie):* services worden geregistreerd en geïnjecteerd via de ingebouwde container voor losse koppeling en testbaarheid.
 
 *Middleware:* cross-cutting concerns zoals foutafhandeling worden geïsoleerd in aangepaste middleware.
